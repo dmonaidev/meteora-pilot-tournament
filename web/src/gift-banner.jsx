@@ -1,0 +1,4 @@
+import React from 'react';
+import {Gift,ArrowUpRight,Sparkles} from 'lucide-react';
+import {PartnerLink} from './partner';
+export function GiftBanner({partner,error}){return <section className="gift-demo-banner" aria-label="Демонстрационный баннер Special gift"><div className="gift-demo-copy"><div className="gift-demo-kicker"><span>ДЕМО</span><b>SPECIAL GIFT / ПРИ ПОДДЕРЖКЕ ПАРТНЁРОВ</b></div><h2>Special gift<span>Техника Apple на XXX $</span></h2><p>И суперприз — будет раскрыт за 3 дня до окончания турнира.</p><PartnerLink partner={partner} error={error}/><small>Демонстрационное место для будущего анонса. Состав партнёров и призовой фонд пока не подтверждены.</small></div><div className="gift-demo-art" aria-hidden="true"><span className="gift-ring"/><Gift size={72} strokeWidth={1.2}/><Sparkles className="gift-sparkle" size={27}/><ArrowUpRight className="gift-arrow" size={18}/><span className="gift-art-caption">THE NEXT SURPRISE</span></div></section>}

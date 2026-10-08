@@ -1,0 +1,7 @@
+export const TOKEN_KEY='meteora-token';
+export function tokenPayload(token){try{const p=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(p.padEnd(Math.ceil(p.length/4)*4,'=')));}catch{return null;}}
+export function tokenExpiry(token){const p=tokenPayload(token);if(!p||!Number.isFinite(p.exp)||!Number.isFinite(p.iat))return 0;return (p.jti?p.exp:Math.min(p.exp,p.iat+1800))*1000;}
+export function tokenActive(token){return typeof token==='string'&&tokenExpiry(token)>Date.now();}
+export function sameSession(a,b){const pa=tokenPayload(a),pb=tokenPayload(b);return !!pa&&!!pb&&pa.sub===pb.sub&&(pa.jti&&pb.jti?pa.jti===pb.jti:!pa.jti);}
+export function restoreToken(){const current=localStorage.getItem(TOKEN_KEY);const legacy=sessionStorage.getItem(TOKEN_KEY);const token=tokenExpiry(current)>0?current:tokenExpiry(legacy)>0?legacy:'';sessionStorage.removeItem(TOKEN_KEY);if(token){localStorage.setItem(TOKEN_KEY,token);sessionStorage.removeItem('meteora-pending');}else localStorage.removeItem(TOKEN_KEY);return token;}
+export function clearSession(){localStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem('meteora-pending');}

@@ -1,0 +1,55 @@
+name: synergyhub-tournament
+services:
+  db:
+    image: postgres:17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tournament
+      POSTGRES_USER: tournament
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in deploy/.env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U tournament -d tournament']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  app:
+    image: synergyhub-tournament:local
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      LOCAL_DEMO: 'false'
+      HOST: 0.0.0.0
+      PORT: '3000'
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in deploy/.env}
+    ports:
+      - 127.0.0.1:3000:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, -e, 'fetch("http://127.0.0.1:3000/health").then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))']
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+  bot:
+    image: synergyhub-tournament:local
+    restart: unless-stopped
+    profiles: [telegram]
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      LOCAL_DEMO: 'false'
+      BACKEND_URL: http://app:3000
+    command: [node, bot/main.mjs]
+    depends_on:
+      app:
+        condition: service_healthy
+volumes:
+  postgres_data:

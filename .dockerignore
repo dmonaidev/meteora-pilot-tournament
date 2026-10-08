@@ -1,0 +1,16 @@
+node_modules
+.local
+*.log
+dist
+.git
+.env
+.env.*
+deploy/.env
+deploy/.env.*
+*.pem
+*.key
+*.zip
+*.xlsx
+coverage
+test-results
+playwright-report
